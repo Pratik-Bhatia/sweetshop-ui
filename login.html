@@ -14,27 +14,40 @@
   <pre id="result"></pre>
 
   <script>
-    document.getElementById("loginForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
+  document.getElementById("loginForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
 
-      const email = document.getElementById("email").value;
-      const password = document.getElementById("password").value;
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const resultBox = document.getElementById("result");
 
-      try {
-        const res = await fetch("https://tester-15.app.n8n.cloud/webhook/api/auth/login", {
-  method: "POST",
-  headers: { "Content-Type": "application/json" },
-  body: JSON.stringify({ email, password })
-});
+    try {
+      const res = await fetch("https://tester-15.app.n8n.cloud/webhook/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password })
+      });
 
+      const data = await res.json();
 
-        const data = await res.json();
-        document.getElementById("result").innerText = JSON.stringify(data, null, 2);
-      } catch (err) {
-        document.getElementById("result").innerText = "Error: " + err.message;
+      if (res.ok && data[0]?.message === "Login successful") {
+        resultBox.innerText = "✅ Welcome, " + data[0].user.email;
+        // Save user info in localStorage
+        localStorage.setItem("user", JSON.stringify(data[0].user));
+        // Redirect to dashboard after 1.5s
+        setTimeout(() => {
+          window.location.href = "/dashboard.html";
+        }, 1500);
+      } else {
+        resultBox.innerText = "❌ Login failed. Please check your credentials.";
       }
-    });
-  </script>
+    } catch (err) {
+      resultBox.innerText = "⚠️ Error: " + err.message;
+    }
+  });
+</script>
+
 </body>
 </html>
+
 
